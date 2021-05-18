@@ -21,10 +21,13 @@ class Main_prog:
         self.clck_y = 0
         self.height = height
         self.width = width
-        self.main_canv = Canvas(master, width=self.width, height=self.height, bg='white')
+        self.main_canv = Canvas(master, width=self.width, height=self.height, bg='black')
         self.rad = 10
-        self.ball = self.main_canv.create_oval(self.width // 2 - self.rad, self.height // 2 - self.rad,
-                                       self.width // 2 + self.rad, self.height // 2 + self.rad, fill='green')
+        self.ball = self.main_canv.create_oval(self.width // 2 - self.rad + 100, self.height // 2 - self.rad + 100,
+                                                self.width // 2 + self.rad + 100, self.height // 2 + self.rad + 100,
+                                               fill='white')
+        self.line =self.main_canv.create_line(self.width // 2, self.height / 2 - 200,
+                                              self.width // 2, self.height / 2 + 200, fill='white')
         self.main_canv.pack()
         self.main_canv.bind('<Button-1>', self.clck_move)
         root.after(10, self.move_ball)
@@ -51,10 +54,10 @@ class Main_prog:
             self.move_x = -self.move_x
         if self.ball_coords[1] < 0 or self.ball_coords[3] > self.height:
             self.move_y = -self.move_y
+        if self.ball_coords[0] < self.width // 2 and self.height / 2 + 200 > self.ball_coords[1] > self.height / 2 - 200 and self.ball_coords[2] > self.width // 2:
+                self.move_x = -self.move_x
 
-        if ((self.ball_coords[0] + self.ball_coords[2]) / 2) != self.clck_x\
-                or ((self.ball_coords[0] + self.ball_coords[2]) / 2) != self.clck_y:
-            root.after(10, self.move_ball)
+        root.after(10, self.move_ball)
 
 root = Tk()
 game = Main_prog(root)
