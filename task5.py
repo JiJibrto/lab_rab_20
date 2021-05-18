@@ -8,63 +8,54 @@ import math
 # движение фигуры в ту точку холста, где пользователь кликает левой кнопкой мыши.
 # Координаты события хранятся в его атрибутах x и y ( event.x , event.y ).
 
-class Game:
-    def __init__(self, width=1000, height=1000):
-        self.vx = 1
-        self.vy = 1
-        self.t = 0
-        self.dt = 1
-        self.i = 0
+class Main_prog:
+    def __init__(self, master, width=600, height=600):
+        self.vect_x = 1
+        self.vect_y = 1
+        self.path = 0
+        self.center_x = 0
+        self.center_y = 0
+        self.move_x = 0
+        self.move_y = 0
+        self.clck_x = 0
+        self.clck_y = 0
         self.height = height
         self.width = width
-        self.c = Canvas(root, width=self.width, height=self.height, bg="white")
-        self.c.pack()
-        self.rad = 20
-        self.ball = self.c.create_oval(self.width // 2 - self.rad, self.height // 2 - self.rad,
+        self.main_canv = Canvas(master, width=self.width, height=self.height, bg='white')
+        self.rad = 10
+        self.ball = self.main_canv.create_oval(self.width // 2 - self.rad, self.height // 2 - self.rad,
                                        self.width // 2 + self.rad, self.height // 2 + self.rad, fill='green')
+        self.main_canv.pack()
+        self.main_canv.bind('<Button-1>', self.clck_move)
+        root.after(10, self.move_ball)
 
-        self.c.bind('<Button-1>', self.onclick)
-        root.after(10, self.onframe)
+    def clck_move(self, event):
+        self.ball_coords = self.main_canv.coords(self.ball)
+        self.center_x = (self.ball_coords[0] + self.ball_coords[2]) / 2
+        self.center_y = (self.ball_coords[1] + self.ball_coords[3]) / 2
+        self.clck_x = event.x
+        self.clck_y = event.y
 
-    def onclick(self, event):
-        self.p = self.c.coords(self.ball)
-        self.dx = event.x - self.p[0]
-        self.dy = event.y - self.p[1]
+        self.vect_x = self.clck_x - self.center_x
+        self.vect_y = self.clck_y - self.center_y
+        self.path = math.sqrt(self.vect_x ** 2 + self.vect_y ** 2)
 
-        self.r = math.sqrt(self.dx ** 2 + self.dy ** 2)
+        self.move_x = self.vect_x / self.path
+        self.move_y = self.vect_y / self.path
 
-        self.vx = self.dx / self.r
-        self.vy = self.dy / self.r
+    def move_ball(self):
+        self.main_canv.move(self.ball, self.move_x * 6, self.move_y * 6)
+        self.ball_coords = self.main_canv.coords(self.ball)
 
-        self.t += self.dt
-        self.p[0] += self.vx + 10
-        self.p[1] += self.vy + 10
+        if self.ball_coords[0] < 0 or self.ball_coords[2] > self.width:
+            self.move_x = -self.move_x
+        if self.ball_coords[1] < 0 or self.ball_coords[3] > self.height:
+            self.move_y = -self.move_y
 
-        if 200 > self.dx >= 100 or 200 > self.dy >= 100 or -200 < self.dx <= -100 or -200 < self.dy <= -100:
-            self.dt = 2
-        elif 300 > self.dx >= 200 or 300 > self.dy >= 200 or -300 < self.dx <= -200 or -300 < self.dy <= -200:
-            self.dt = 4
-        elif 500 > self.dx >= 300 or 500 > self.dy >= 300 or -500 < self.dx <= -300 or -500 < self.dy <= -300:
-            self.dt = 7
-        elif self.dx >= 500 or self.dy >= 500 or self.dx <= -500 or self.dy <= -500:
-            self.dt = 10
-        else:
-            self.dt = 1
-        print(self.dx, self.dy, self.dt)
-
-    def onframe(self):
-        self.c.move(self.ball, self.dt * self.vx, self.dt * self.vy)
-        self.p = self.c.coords(self.ball)
-
-        if self.p[1] < 0 or self.p[1] > self.height - 2 * self.rad:
-            self.vy = -self.vy
-
-        if self.p[0] < 0 or self.p[0] > self.width - 2 * self.rad:
-            self.vx = -self.vx
-
-        root.after(10, self.onframe)
+        if ((self.ball_coords[0] + self.ball_coords[2]) / 2) != self.clck_x\
+                or ((self.ball_coords[0] + self.ball_coords[2]) / 2) != self.clck_y:
+            root.after(10, self.move_ball)
 
 root = Tk()
-root.resizable(False, False)
-Game()
+game = Main_prog(root)
 root.mainloop()
